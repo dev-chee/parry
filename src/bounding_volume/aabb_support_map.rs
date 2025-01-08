@@ -3,7 +3,7 @@ use crate::bounding_volume::Aabb;
 use crate::math::{Isometry, Real};
 use crate::shape::Segment;
 #[cfg(feature = "dim3")]
-use crate::shape::{Cone, Cylinder};
+use crate::shape::{Cone, Cylinder, Prism};
 
 #[cfg(feature = "dim3")]
 impl Cone {
@@ -29,6 +29,21 @@ impl Cylinder {
     }
 
     /// Computes the local-space [`Aabb`] of this cylinder.
+    #[inline]
+    pub fn local_aabb(&self) -> Aabb {
+        bounding_volume::details::local_support_map_aabb(self)
+    }
+}
+
+#[cfg(feature = "dim3")]
+impl Prism {
+    /// Computes the world-space [`Aabb`] of this prism, transformed by `pos`.
+    #[inline]
+    pub fn aabb(&self, pos: &Isometry<Real>) -> Aabb {
+        bounding_volume::details::support_map_aabb(pos, self)
+    }
+
+    /// Computes the local-space [`Aabb`] of this prism.
     #[inline]
     pub fn local_aabb(&self) -> Aabb {
         bounding_volume::details::local_support_map_aabb(self)

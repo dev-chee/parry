@@ -13,7 +13,7 @@ use crate::shape::ConvexPolygon;
 use crate::shape::ConvexPolyhedron;
 use crate::shape::{Capsule, FeatureId, Segment, SupportMap};
 #[cfg(feature = "dim3")]
-use crate::shape::{Cone, Cylinder};
+use crate::shape::{Cone, Cylinder, Prism};
 
 use num::Zero;
 
@@ -74,6 +74,24 @@ pub fn local_ray_intersection_with_support_map_with_params<G: ?Sized + SupportMa
 
 #[cfg(feature = "dim3")]
 impl RayCast for Cylinder {
+    fn cast_local_ray_and_get_normal(
+        &self,
+        ray: &Ray,
+        max_time_of_impact: Real,
+        solid: bool,
+    ) -> Option<RayIntersection> {
+        local_ray_intersection_with_support_map_with_params(
+            self,
+            &mut VoronoiSimplex::new(),
+            ray,
+            max_time_of_impact,
+            solid,
+        )
+    }
+}
+
+#[cfg(feature = "dim3")]
+impl RayCast for Prism {
     fn cast_local_ray_and_get_normal(
         &self,
         ray: &Ray,

@@ -5,7 +5,7 @@ use na::Unit;
 use {
     crate::{
         math::Point,
-        shape::{Cone, Cylinder, PackedFeatureId},
+        shape::{Cone, Cylinder, Prism, PackedFeatureId},
     },
     approx::AbsDiffEq,
 };
@@ -48,8 +48,15 @@ impl PolygonalFeatureMap for Cuboid {
 #[cfg(feature = "dim3")]
 impl PolygonalFeatureMap for Cylinder {
     fn local_support_feature(&self, dir: &Unit<Vector<Real>>, out_features: &mut PolygonalFeature) {
-        use na::Vector2;
+        todo!("unimplemented")
+    }
+}
 
+#[cfg(feature = "dim3")]
+impl PolygonalFeatureMap for Prism {
+    fn local_support_feature(&self, dir: &Unit<Vector<Real>>, out_features: &mut PolygonalFeature) {
+        use na::Vector2;
+        
         // About feature ids.
         // At all times, we consider our cylinder to be approximated as follows:
         // - The curved part is approximated by a single segment.

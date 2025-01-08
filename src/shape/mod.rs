@@ -41,6 +41,8 @@ pub use self::convex_polyhedron::ConvexPolyhedron;
 #[cfg(feature = "dim3")]
 pub use self::cylinder::Cylinder;
 #[cfg(feature = "dim3")]
+pub use self::prism::Prism;
+#[cfg(feature = "dim3")]
 #[cfg(feature = "std")]
 pub use self::heightfield3::*;
 #[cfg(feature = "dim3")]
@@ -105,6 +107,8 @@ mod cone;
 mod convex_polyhedron;
 #[cfg(feature = "dim3")]
 mod cylinder;
+#[cfg(feature = "dim3")]
+mod prism;
 #[cfg(feature = "dim3")]
 #[cfg(feature = "std")]
 mod heightfield3;

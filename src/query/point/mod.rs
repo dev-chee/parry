@@ -21,6 +21,8 @@ mod point_cone;
 mod point_cuboid;
 #[cfg(feature = "dim3")]
 mod point_cylinder;
+#[cfg(feature = "dim3")]
+mod point_prism;
 mod point_halfspace;
 #[cfg(feature = "std")]
 mod point_heightfield;

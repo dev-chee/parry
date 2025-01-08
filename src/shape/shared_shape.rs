@@ -10,7 +10,7 @@ use crate::shape::{
     TriMesh, TriMeshFlags, Triangle, TypedShape,
 };
 #[cfg(feature = "dim3")]
-use crate::shape::{Cone, ConvexPolyhedron, Cylinder};
+use crate::shape::{Cone, ConvexPolyhedron, Cylinder, Prism};
 use crate::transformation::vhacd::{VHACDParameters, VHACD};
 use na::Unit;
 use std::fmt;
@@ -79,6 +79,12 @@ impl SharedShape {
     #[cfg(feature = "dim3")]
     pub fn cylinder(half_height: Real, radius: Real) -> Self {
         SharedShape(Arc::new(Cylinder::new(half_height, radius)))
+    }
+
+    #[cfg(feature = "dim3")]
+    /// Create a prism shape (along the y axis)
+    pub fn prism(half_height: Real, radius: Real, angle_with_x: Real, half_angle: Real) -> Self {
+        SharedShape(Arc::new(Prism::new(half_height, radius, angle_with_x, half_angle)))
     }
 
     /// Initialize a rounded cylindrical shape defined by its half-height

@@ -45,6 +45,8 @@ mod bounding_sphere_convex_polygon;
 mod bounding_sphere_cuboid;
 #[cfg(feature = "dim3")]
 mod bounding_sphere_cylinder;
+#[cfg(feature = "dim3")]
+mod bounding_sphere_prism;
 mod bounding_sphere_halfspace;
 #[cfg(feature = "std")]
 mod bounding_sphere_heightfield;

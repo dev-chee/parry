@@ -15,7 +15,7 @@ use crate::shape::{
     RoundTriangle, Segment, SupportMap, Triangle,
 };
 #[cfg(feature = "dim3")]
-use crate::shape::{Cone, Cylinder, RoundCone, RoundCylinder};
+use crate::shape::{Cone, Cylinder, Prism, RoundCone, RoundCylinder};
 
 #[cfg(feature = "dim3")]
 #[cfg(feature = "std")]
@@ -60,6 +60,9 @@ pub enum ShapeType {
     #[cfg(feature = "dim3")]
     /// A cylindrical shape.
     Cylinder,
+    #[cfg(feature = "dim3")]
+    /// A cylindrical sector.
+    Prism,
     #[cfg(feature = "dim3")]
     /// A cone shape.
     Cone,
@@ -128,6 +131,9 @@ pub enum TypedShape<'a> {
     /// A cylindrical shape.
     Cylinder(&'a Cylinder),
     #[cfg(feature = "dim3")]
+    /// A cylindrical sector.
+    Prism(&'a Prism),
+    #[cfg(feature = "dim3")]
     /// A cone shape.
     Cone(&'a Cone),
     /// A cuboid with rounded corners.
@@ -181,6 +187,8 @@ impl Debug for TypedShape<'_> {
             Self::ConvexPolyhedron(arg0) => f.debug_tuple("ConvexPolyhedron").field(arg0).finish(),
             #[cfg(feature = "dim3")]
             Self::Cylinder(arg0) => f.debug_tuple("Cylinder").field(arg0).finish(),
+            #[cfg(feature = "dim3")]
+            Self::Prism(arg0) => f.debug_tuple("Prism").field(arg0).finish(),
             #[cfg(feature = "dim3")]
             Self::Cone(arg0) => f.debug_tuple("Cone").field(arg0).finish(),
             Self::RoundCuboid(arg0) => f.debug_tuple("RoundCuboid").field(arg0).finish(),
@@ -244,6 +252,9 @@ pub(crate) enum DeserializableTypedShape {
     /// A cylindrical shape.
     Cylinder(Cylinder),
     #[cfg(feature = "dim3")]
+    /// A cylindrical sector.
+    Prism(Prism),
+    #[cfg(feature = "dim3")]
     /// A cone shape.
     Cone(Cone),
     // /// A custom shape type.
@@ -302,6 +313,8 @@ impl DeserializableTypedShape {
             DeserializableTypedShape::ConvexPolyhedron(s) => Some(SharedShape::new(s)),
             #[cfg(feature = "dim3")]
             DeserializableTypedShape::Cylinder(s) => Some(SharedShape::new(s)),
+            #[cfg(feature = "dim3")]
+            DeserializableTypedShape::Prism(s) => Some(SharedShape::new(s)),
             #[cfg(feature = "dim3")]
             DeserializableTypedShape::Cone(s) => Some(SharedShape::new(s)),
             DeserializableTypedShape::RoundCuboid(s) => Some(SharedShape::new(s)),
@@ -598,6 +611,17 @@ impl dyn Shape {
     /// Converts this abstract shape to a mutable cylinder, if it is one.
     #[cfg(feature = "dim3")]
     pub fn as_cylinder_mut(&mut self) -> Option<&mut Cylinder> {
+        self.downcast_mut()
+    }
+   
+    /// Converts this abstract shape to a prism, if it is one.
+    #[cfg(feature = "dim3")]
+    pub fn as_prism(&self) -> Option<&Prism> {
+        self.downcast_ref()
+    }
+    /// Converts this abstract shape to a mutable prism, if it is one.
+    #[cfg(feature = "dim3")]
+    pub fn as_prism_mut(&mut self) -> Option<&mut Prism> {
         self.downcast_mut()
     }
 
@@ -1367,6 +1391,64 @@ impl Shape for Cylinder {
 
     fn as_typed_shape(&self) -> TypedShape {
         TypedShape::Cylinder(self)
+    }
+
+    fn ccd_thickness(&self) -> Real {
+        self.radius
+    }
+
+    fn ccd_angular_thickness(&self) -> Real {
+        Real::frac_pi_2()
+    }
+
+    fn as_support_map(&self) -> Option<&dyn SupportMap> {
+        Some(self as &dyn SupportMap)
+    }
+
+    fn as_polygonal_feature_map(&self) -> Option<(&dyn PolygonalFeatureMap, Real)> {
+        Some((self as &dyn PolygonalFeatureMap, 0.0))
+    }
+}
+
+#[cfg(feature = "dim3")]
+impl Shape for Prism {
+    #[cfg(feature = "std")]
+    fn clone_dyn(&self) -> Box<dyn Shape> {
+        Box::new(*self)
+    }
+
+    #[cfg(feature = "std")]
+    fn scale_dyn(&self, scale: &Vector<Real>, num_subdivisions: u32) -> Option<Box<dyn Shape>> {
+        let scaled = self.scaled(scale, num_subdivisions)?;
+        Some(scaled.either::<_, _, Box<dyn Shape>>(|x| Box::new(x), |x| Box::new(x)))
+    }
+
+    fn compute_local_aabb(&self) -> Aabb {
+        self.local_aabb()
+    }
+
+    fn compute_local_bounding_sphere(&self) -> BoundingSphere {
+        self.local_bounding_sphere()
+    }
+
+    fn compute_aabb(&self, position: &Isometry<Real>) -> Aabb {
+        self.aabb(position)
+    }
+
+    fn mass_properties(&self, _density: Real) -> MassProperties {
+        todo!("unimplemented")
+    }
+
+    fn is_convex(&self) -> bool {
+        true
+    }
+
+    fn shape_type(&self) -> ShapeType {
+        ShapeType::Prism
+    }
+
+    fn as_typed_shape(&self) -> TypedShape {
+        TypedShape::Prism(self)
     }
 
     fn ccd_thickness(&self) -> Real {
